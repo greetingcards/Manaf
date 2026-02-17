@@ -3,111 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بطاقة تهنئة - بشرى الضيافة</title>
 
-  <title>Fantasy Eye - Greeting Card Generator</title>
-
-  <!-- Font (works well for Arabic; you can add more fonts if you want) -->
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    :root { --max: 1100px; }
-    body {
-      margin: 0;
-      font-family: Tajawal, Arial, sans-serif;
-      background: #0b0b0b;
-      color: #fff;
-    }
-    .wrap {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .header {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: 1.2fr 1fr;
-      align-items: center;
-      margin-top: 12px;
-    }
-    .header h1 { margin: 0; font-size: 34px; }
-    .header p { margin: 8px 0 0; opacity: .9; }
+    body { margin:0; font-family:Tajawal, Arial, sans-serif; background:#f4efe8; color:#1a1a1a; }
+    .wrap { max-width: 1000px; margin:0 auto; padding:18px; }
+    h1 { margin: 6px 0 10px; font-size: 28px; }
+    p { margin: 0 0 14px; color:#444; }
 
-    .card {
-      margin-top: 18px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px;
-      padding: 16px;
-      display: grid;
-      gap: 16px;
+    .box {
+      background:#fff;
+      border:1px solid #e6dfd6;
+      border-radius:16px;
+      padding:16px;
+      display:grid;
       grid-template-columns: 320px 1fr;
+      gap:16px;
+      align-items:start;
     }
 
-    .controls label { display:block; margin: 10px 0 6px; opacity: .9; }
-    .controls select, .controls input {
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.25);
-      color: #fff;
-      font-size: 16px;
-      outline: none;
-    }
-    .controls button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 0;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 700;
-      background: #AD8252;
-      color: #111;
-    }
-    .hint {
-      font-size: 12px;
-      opacity: .8;
-      line-height: 1.6;
-      margin-top: 10px;
+    label { display:block; margin: 10px 0 6px; font-weight:700; }
+    select, input {
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #e1d9cf;
+      outline:none;
+      font-size:16px;
+      background:#faf8f5;
     }
 
-    .canvasBox {
-      display: grid;
-      gap: 12px;
-      justify-items: center;
-      padding: 8px;
+    button {
+      width:100%;
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:0;
+      cursor:pointer;
+      font-weight:700;
+      font-size:16px;
+      background:#AD8252;
+      color:#111;
     }
+
+    .note { margin-top:10px; font-size:12px; color:#666; line-height:1.6; }
+
+    .preview { display:grid; justify-items:center; gap:12px; }
     canvas {
-      width: 100%;
-      max-width: 520px;
-      height: auto;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: #111;
-    }
-    .actions {
-      width: 100%;
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .actions a {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: 700;
-      background: rgba(255,255,255,.12);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,.18);
+      width:100%;
+      max-width: 480px;
+      height:auto;
+      border-radius:16px;
+      border:1px solid #e6dfd6;
+      background:#fff;
     }
 
     @media (max-width: 900px){
-      .header { grid-template-columns: 1fr; }
-      .card { grid-template-columns: 1fr; }
+      .box { grid-template-columns: 1fr; }
       canvas { max-width: 100%; }
     }
   </style>
@@ -115,20 +69,12 @@
 
 <body>
   <div class="wrap">
-    <div class="header">
-      <div>
-        <h1 id="titleText">كل عام وأنتم بخير</h1>
-        <p id="subtitleText">يمكنك كتابة اسمك واختيار اللغة لتحميل تهنئتك الخاصة بسهولة.</p>
-      </div>
-      <div style="opacity:.85; font-size:14px; line-height:1.7">
-        <strong>Fantasy Eye</strong><br>
-        Greeting Card Generator (5 Languages)
-      </div>
-    </div>
+    <h1>صمّم بطاقتك</h1>
+    <p>اختر لغة الاسم، اكتب اسمك، ثم حمّل بطاقتك مباشرة.</p>
 
-    <div class="card">
-      <div class="controls">
-        <label for="lang">Language / اللغة</label>
+    <div class="box">
+      <div>
+        <label for="lang">لغة الاسم</label>
         <select id="lang">
           <option value="ar" selected>العربية</option>
           <option value="en">English</option>
@@ -137,25 +83,24 @@
           <option value="id">Bahasa Indonesia</option>
         </select>
 
-        <label for="name" id="nameLabel">الاسم</label>
-        <input id="name" type="text" placeholder="اكتب اسمك" autocomplete="name" />
+        <label for="name">الاسم</label>
+        <input id="name" type="text" placeholder="اكتب اسمك هنا" autocomplete="name" />
 
-        <button type="button" id="downloadBtn">تحميل البطاقة JPG</button>
+        <button type="button" id="downloadBtn">تنزيل البطاقة</button>
 
-        <div class="hint">
-          <div>📌 ملاحظة: تأكدي من وجود الصور التالية داخل <code>images/</code>:</div>
-          <div>card-ar.jpg / card-en.jpg / card-fr.jpg / card-bn.jpg / card-id.jpg</div>
-          <div>ويمكن تغيير مكان الاسم من إعدادات X/Y داخل الملف.</div>
+        <div class="note">
+          <div>📌 ضعي صورة البطاقة داخل مجلد <b>images</b> باسم:</div>
+          <div><code>card.jpg</code></div>
+          <div>الاسم سيظهر <b>تحت عبارة “تقبل الله منا ومنكم”</b>.</div>
         </div>
       </div>
 
-      <div class="canvasBox">
-        <!-- High-resolution canvas (you can keep 2160x3840 if your cards are that size) -->
+      <div class="preview">
+        <!-- High-res canvas -->
         <canvas id="imageCanvas" width="2160" height="3840"></canvas>
 
-        <div class="actions">
-          <a id="downloadLink" download="GreetingCard.jpg" href="#">Download link</a>
-        </div>
+        <!-- hidden download link used by JS -->
+        <a id="downloadLink" download="GreetingCard.jpg" href="#" style="display:none;">download</a>
       </div>
     </div>
   </div>
