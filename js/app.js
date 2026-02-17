@@ -1,23 +1,5 @@
-/* Greeting Card Generator (5 Languages) - SAFE, standalone */
+/* Arabic UI ثابت + اختيار بطاقة حسب اللغة + كتابة الاسم */
 
-// ---------- Optional "SAFE" navbar/back-to-top guards (won't error if not present) ----------
-window.onscroll = function () {
-  // Safe: navbar collapse
-  const nav = document.getElementById("navbar");
-  if (nav) {
-    if (document.documentElement.scrollTop > 30) nav.classList.add("top-nav-collapse");
-    else nav.classList.remove("top-nav-collapse");
-  }
-
-  // Safe: back-to-top button
-  const myButton = document.getElementById("myBtn");
-  if (myButton) {
-    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) myButton.style.display = "block";
-    else myButton.style.display = "none";
-  }
-};
-
-// ---------- Card Generator ----------
 (() => {
   const langEl = document.getElementById("lang");
   const nameEl = document.getElementById("name");
@@ -25,145 +7,108 @@ window.onscroll = function () {
   const downloadBtn = document.getElementById("downloadBtn");
   const downloadLink = document.getElementById("downloadLink");
 
-  const titleText = document.getElementById("titleText");
-  const subtitleText = document.getElementById("subtitleText");
-  const nameLabel = document.getElementById("nameLabel");
-
   if (!langEl || !nameEl || !canvas || !downloadBtn || !downloadLink) return;
 
+  // ✅ ثبتي لغة/اتجاه الصفحة (ولا نغيّرهم مرة ثانية)
+  document.documentElement.lang = "ar";
+  document.documentElement.dir = "rtl";
+
   const ctx = canvas.getContext("2d");
+
+  // ✅ ربط الاختيار بالصور (حسب أسماء ملفاتك بالضبط)
+  const CARD_BG = {
+    ar: "images/card-ar.png",
+    en: "images/card-en.png",
+    fr: "images/card-fr.png",
+    bn: "images/card-bn.png",
+    in: "images/card-in.png",
+    ur: "images/card-ur.png",
+  };
+
+  // ✅ مكان الاسم تحت عبارة "تقبل الله منا ومنكم"
+  const NAME_X_RATIO = 0.5;     // وسط
+  const NAME_Y_RATIO = 0.804;   // تحت النص (عدّليها إذا احتجتي)
+
+  // ✅ حجم الخط لكل لغة (اختياري)
+  const FONT_SIZE = {
+    ar: 95,
+    ur: 95,
+    en: 85,
+    fr: 85,
+    bn: 85,
+    in: 85,
+  };
+
+  const NAME_COLOR = "#AD8252";
+  const FONT_FAMILY = "Tajawal, Arial, sans-serif";
+  const FONT_WEIGHT = "700";
+
   const bgImg = new Image();
   bgImg.crossOrigin = "anonymous";
 
-  // --- Configure your 5 languages here ---
-  const CARD_CONFIG = {
-    ar: {
-      langAttr: "ar",
-      dir: "rtl",
-      placeholder: "اكتب اسمك",
-      nameLabel: "الاسم",
-      title: "كل عام وأنتم بخير",
-      subtitle: "يمكنك كتابة اسمك واختيار اللغة لتحميل تهنئتك الخاصة بسهولة.",
-      bg: "images/card-ar.jpg",
-      font: "bold 110px Tajawal",
-      // name position (RTL usually right)
-      align: "right",
-      x: canvas.width - 260,
-      y: 2900
-    },
-    en: {
-      langAttr: "en",
-      dir: "ltr",
-      placeholder: "Type your name",
-      nameLabel: "Name",
-      title: "Eid Mubarak",
-      subtitle: "Type your name, choose a language, and download your greeting card.",
-      bg: "images/card-en.jpg",
-      font: "bold 110px Tajawal",
-      align: "left",
-      x: 260,
-      y: 2900
-    },
-    fr: {
-      langAttr: "fr",
-      dir: "ltr",
-      placeholder: "Écrivez votre nom",
-      nameLabel: "Nom",
-      title: "Aïd Moubarak",
-      subtitle: "Saisissez votre nom, choisissez la langue, puis téléchargez votre carte.",
-      bg: "images/card-fr.jpg",
-      font: "bold 110px Tajawal",
-      align: "left",
-      x: 260,
-      y: 2900
-    },
-    bn: {
-      langAttr: "bn",
-      dir: "ltr",
-      placeholder: "আপনার নাম লিখুন",
-      nameLabel: "নাম",
-      title: "ঈদ মোবারক",
-      subtitle: "আপনার নাম লিখুন, ভাষা নির্বাচন করুন, এবং কার্ড ডাউনলোড করুন।",
-      bg: "images/card-bn.jpg",
-      font: "bold 110px Tajawal",
-      align: "left",
-      x: 260,
-      y: 2900
-    },
-    id: {
-      langAttr: "id",
-      dir: "ltr",
-      placeholder: "Tulis nama Anda",
-      nameLabel: "Nama",
-      title: "Selamat Idulfitri",
-      subtitle: "Tulis nama Anda, pilih bahasa, lalu unduh kartu ucapan Anda.",
-      bg: "images/card-id.jpg",
-      font: "bold 110px Tajawal",
-      align: "left",
-      x: 260,
-      y: 2900
-    }
-  };
-
-  function getCfg() {
-    return CARD_CONFIG[langEl.value] || CARD_CONFIG.ar;
-  }
-
-  function applyLanguage() {
-    const cfg = getCfg();
-
-    document.documentElement.lang = cfg.langAttr;
-    document.documentElement.dir = cfg.dir;
-
-    // UI text
-    nameEl.placeholder = cfg.placeholder;
-    if (nameLabel) nameLabel.textContent = cfg.nameLabel;
-    if (titleText) titleText.textContent = cfg.title;
-    if (subtitleText) subtitleText.textContent = cfg.subtitle;
-
-    // Load background image
-    bgImg.src = cfg.bg;
+  function loadBackground() {
+    const lang = langEl.value || "ar";
+    const src = CARD_BG[lang] || CARD_BG.ar;
+    bgImg.src = src;
   }
 
   function draw() {
-    const cfg = getCfg();
-
-    // Draw background
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
-    // Draw name
+    // خلفية البطاقة
+    if (bgImg.complete && bgImg.naturalWidth) {
+      ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    }
+
     const name = (nameEl.value || "").trim();
     if (!name) return;
 
-    ctx.font = cfg.font;
-    ctx.fillStyle = "#FFFFFF";
-    ctx.textBaseline = "middle";
-    ctx.textAlign = cfg.align;
+    const lang = langEl.value || "ar";
+    let size = FONT_SIZE[lang] || 85;
 
-    ctx.fillText(name, cfg.x, cfg.y);
+    // الاسم في المنتصف (يناسب RTL/LTR بدون مشاكل)
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = NAME_COLOR;
+
+    const x = canvas.width * NAME_X_RATIO;
+    const y = canvas.height * NAME_Y_RATIO;
+
+    // Auto-fit للاسم الطويل
+    const maxWidth = canvas.width * 0.78;
+    ctx.font = `${FONT_WEIGHT} ${size}px ${FONT_FAMILY}`;
+    while (ctx.measureText(name).width > maxWidth && size > 50) {
+      size -= 2;
+      ctx.font = `${FONT_WEIGHT} ${size}px ${FONT_FAMILY}`;
+    }
+
+    ctx.fillText(name, x, y);
   }
 
-  function makeDownload() {
+  function download() {
     draw();
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+    const dataUrl = canvas.toDataURL("image/png");
+
+    const safeName = (nameEl.value || "name")
+      .trim()
+      .replace(/[^\w\u0600-\u06FF\u0980-\u09FF\u00C0-\u017F\s-]/g, "")
+      .replace(/\s+/g, "_");
+
+    const lang = langEl.value || "ar";
     downloadLink.href = dataUrl;
-
-    // Better filename by language + name
-    const safeName = (nameEl.value || "Employee").trim().replace(/[^\w\u0600-\u06FF\u0980-\u09FF\u00C0-\u017F\s-]/g, "").replace(/\s+/g, "_");
-    const lang = langEl.value;
-    downloadLink.download = `Greeting_${lang}_${safeName}.jpg`;
-
-    // Trigger download via button
+    downloadLink.download = `Bushra_${lang}_${safeName}.png`;
     downloadLink.click();
   }
 
-  // Events
-  langEl.addEventListener("change", applyLanguage);
+  // events
+  langEl.addEventListener("change", () => {
+    loadBackground(); // draw will happen when image loads
+  });
   nameEl.addEventListener("input", draw);
-  bgImg.onload = draw;
-  downloadBtn.addEventListener("click", makeDownload);
+  downloadBtn.addEventListener("click", download);
 
-  // Init
-  applyLanguage();
+  bgImg.onload = draw;
+
+  // init
+  loadBackground();
 })();
